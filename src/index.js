@@ -39,4 +39,15 @@ async function handler(req, res) {
 //
 // curl -i localhost:3000 -X POST --data '{"name": "Superman", "age": "200"}'
 
-const server = createServer(handler).listen(3000, () => console.log('running at 3000 and process:', process.pid)) 
+const server = createServer(handler).listen(3000, () => console.log('running at 3000 and process:', process.pid))
+
+const onStop = (signal) => {
+  console.info(`\n${signal} signal received!`);
+
+  // zero is everythin fine, and 1 is ERROR!
+  process.exit(0)
+}
+// [SIGINT] - Only kill the process using the pid with kill: kill <PID>
+// [SIGTERM] - It do an action when we kill the PID
+
+['SIGINT', 'SIGTERM'].forEach((event) => process.on(event, onStop))
