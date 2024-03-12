@@ -1,0 +1,13 @@
+{
+  "name": "gracefull-shutdown",
+  "version": "1.0.0",
+  "description": "## Example We have a ecommerce with a lot of clients. It was developed by a group of devs that are every 2 days updating the software.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
