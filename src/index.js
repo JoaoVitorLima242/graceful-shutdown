@@ -1,3 +1,4 @@
+import { createServer } from 'http'
 import { MongoClient } from 'mongodb'
 
 async function dbConnect() {
@@ -11,14 +12,31 @@ async function dbConnect() {
   }
 }
 
-try {
-  const { collections, client } = await dbConnect()
+const { collections, client } = await dbConnect()
 
-  await collections.heroes.insertOne({ createdAt: new Date().toUTCString(), name: 'Flash' })
-  const heroes = await collections.heroes.find().toArray()
+async function handler(req, res) {
+  for await (const data of req) {
+    try {
+      const hero = JSON.parse(data)
+      await collections.heroes.insertOne({ createdAt: new Date().toISOString(), ...hero })
+      const heroes = await collections.heroes.find().toArray()
 
-  console.log({ heroes })
-  await client.close()
-} catch (e) {
-  console.log('error: ', e)
+      console.log({ heroes })
+
+      res.writeHead(200)
+      res.write(JSON.stringify({ heroes }))
+    } catch (e) {
+      console.log('error: ', e)
+      res.writeHead(500)
+      res.write(JSON.stringify({ message: 'internal server error' }))
+    } finally {
+      res.end()
+    }
+  }
 }
+
+// await client.close()
+//
+// curl -i localhost:3000 -X POST --data '{"name": "Superman", "age": "200"}'
+
+const server = createServer(handler).listen(3000, () => console.log('running at 3000 and process:', process.pid)) 
