@@ -1,4 +1,5 @@
 import { createServer } from 'http'
+import { promisify } from 'util'
 import { MongoClient } from 'mongodb'
 
 async function dbConnect() {
@@ -41,8 +42,15 @@ async function handler(req, res) {
 
 const server = createServer(handler).listen(3000, () => console.log('running at 3000 and process:', process.pid))
 
-const onStop = (signal) => {
+const onStop = async (signal) => {
   console.info(`\n${signal} signal received!`);
+
+  console.log('Closing http server')
+  await promisify(server.close.bind(server))()
+  console.log('Http server was closed')
+
+  await client.close()
+  console.log('MongoDB was closed')
 
   // zero is everythin fine, and 1 is ERROR!
   process.exit(0)
@@ -51,3 +59,7 @@ const onStop = (signal) => {
 // [SIGTERM] - It do an action when we kill the PID
 
 ['SIGINT', 'SIGTERM'].forEach((event) => process.on(event, onStop))
+
+
+// We can use it to avoid the process to be killed. Because we can have validations before the process
+// be end: process.end() :(
